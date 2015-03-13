@@ -1,25 +1,6 @@
-Implements a prefix tree that represents nodes in a compacted way. 
-Unless other compact trie implementations the compaction does not focus on the tail only.
-It tries to minimize space by storing nodes with a distinct number of successors in different
-structures. For each of these nodes types there exist a block type that stores the nodes
-as array of equally dimensioned structures. A node in the trie is addressed with a virtual
-24 bit address that uses the most significant 3 bits for the node type, that identifies the
-block where the node is stored. The least significant 21 bits are used for the offset of
-the node in the block. This representation makes it possible to store nodes with only one
-successor, that is in dictionary tries for european languages the far most frequent node
-type, in only 32 bits (24 bit for the virtual node address of the successor and 8 bits for
-the character. Values assigned to keys are stored in 32 bit integer number.
+Implements a prefix tree that represents nodes in a compacted way. Unless other compact trie implementations the compaction does not focus on the tail only. It tries to minimize space by storing nodes with a distinct number of successors in different structures. For each of these nodes types there exist a block type that stores the nodes as array of equally dimensioned structures. A node in the trie is addressed with a virtual 24 bit address that uses the most significant 3 bits for the node type, that identifies the block where the node is stored. The least significant 21 bits are used for the offset of the node in the block. This representation makes it possible to store nodes with only one successor, that is in dictionary tries for european languages the far most frequent node type, in only 32 bits (24 bit for the virtual node address of the successor and 8 bits for the character. Values assigned to keys are stored in 32 bit integer number.
 
-Because of the address limitation to 24 bits and the limitation of addressing nodes of
-equal type only with 21 bits (~ 2 million nodes), the number of keys that can be inserted
-in this implementation of a compact node trie is limited too. 
-If you take words of the germam language for example, put to lowercase before inserting,
-you get keys of 13 digits in average (12 for the key and one for the value). 
-Each key consumes approximately 3.5 nodes (much less than 12 because a lot of nodes are shared)
-of which far most are nodes with 1 successor. Taking a worst case of 8 nodes and a best case 
-of 4 nodes, this trie implementation will have a capacity of 250'000 to 500'000 entries.
-This is not much, but that's the price you pay for the compaction to a size
-that is approximately 25% more than the size of all key strings concatenated and a very 
-fast access (read and insert).
+Because of the address limitation to 24 bits and the limitation of addressing nodes of equal type only with 21 bits (~ 2 million nodes), the number of keys that can be inserted in this implementation of a compact node trie is limited too.
+If you take words of the germam language for example, put to lowercase before inserting, you get keys of 13 digits in average (12 for the key and one for the value). Each key consumes approximately 3.5 nodes (much less than 12 because a lot of nodes are shared) of which far most are nodes with 1 successor. Taking a worst case of 8 nodes and a best case  of 4 nodes, this trie implementation will have a capacity of 250'000 to 500'000 entries. This is not much, but that's the price you pay for the compaction to a size that is approximately 25% more than the size of all key strings concatenated and a very fast access (read and insert).
 
 
