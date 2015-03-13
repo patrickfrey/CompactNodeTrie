@@ -1,5 +1,5 @@
-Implements a prefix trie that represents nodes in a compacted way. 
-Unless other compact prefix tree implementations the compaction does not focus on the tail only.
+Implements a prefix tree that represents nodes in a compacted way. 
+Unless other compact trie implementations the compaction does not focus on the tail only.
 It tries to minimize space by storing nodes with a distinct number of successors in different
 structures. For each of these nodes types there exist a block type that stores the nodes
 as array of equally dimensioned structures. A node in the trie is addressed with a virtual
