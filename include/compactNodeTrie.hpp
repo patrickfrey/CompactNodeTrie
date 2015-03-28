@@ -26,8 +26,8 @@
 
 --------------------------------------------------------------------
 */
-#ifndef _STRUS_LVDB_COMPACT_NODE_PREFIX_TRIE_HPP_INCLUDED
-#define _STRUS_LVDB_COMPACT_NODE_PREFIX_TRIE_HPP_INCLUDED
+#ifndef _COMPACT_NODE_TRIE_HPP_INCLUDED
+#define _COMPACT_NODE_TRIE_HPP_INCLUDED
 #include <cstdlib>
 #include <stdexcept>
 #include <utility>
@@ -36,7 +36,7 @@
 #include <iostream>
 #include <stdint.h>
 
-namespace strus {
+namespace conotrie {
 
 /// \class CompactNodeTrie
 /// \brief Implements a prefix trie that represents nodes in a compacted way. 
@@ -200,7 +200,7 @@ private:
 		enum {
 			Mask  = 0x7,		///< 3 bit for node class
 			Shift = 29,		///< most significant 3 bits
-			MaxNofNodes=(1<<21)	///< Maximum number of nodes in a block
+			MaxNofNodes=((1<<21)-1)	///< Maximum number of nodes in a block
 		};
 	};
 	static NodeClass::Id nodeClassId( const NodeAddress& addr)
@@ -354,7 +354,10 @@ private:
 				UnitType& unit, unsigned char chr,
 				const NodeAddress& oldaddr, const NodeAddress& newaddr)
 		{
-			if (lexem( unit) != chr) throw std::logic_error( "illegal patch operation (lexem does not match)");
+			if (lexem( unit) != chr)
+			{
+				throw std::logic_error( "illegal patch operation (lexem does not match)");
+			}
 			if (address( unit) != oldaddr) throw std::logic_error( "illegal patch operation (previous address does not match)");
 			unit = newaddr | (lexem(unit) << LexemShift);
 		}
