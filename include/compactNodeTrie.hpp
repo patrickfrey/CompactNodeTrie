@@ -56,6 +56,7 @@ public:
 	typedef uint32_t NodeData;	///< Value type of the node
 	typedef uint32_t NodeAddress;	///< Virtual address of a node
 	typedef uint32_t NodeIndex;	///< Index of the node in its block
+	enum {NullNodeIndex=0xFFffFFffU};
 
 public:
 	/// \brief Default constructor
@@ -66,10 +67,11 @@ public:
 		//... address 0 is reserved for NULL
 	}
 
-	/// \brief Insert a new unique entry with key and value
+	/// \brief Insert a new unique entry with key and value or update it if it already exists
 	/// \param[in] key the key of the entry (NUL terminated)
 	/// \param[in] val the value assigned to the key
-	void set( const char* key, const NodeData& val);
+	/// \return true on success and false, if the insertion/update failed because a node allocation error due to the limited node address space
+	bool set( const char* key, const NodeData& val);
 
 	/// \brief Get the value of a new unique entry
 	/// \param[in] key the key of the entry (NUL terminated)
@@ -651,11 +653,11 @@ private:
 				m_ar = newar;
 				m_allocsize = mm;
 			}
-			std::memset( m_ar + m_size, 0, sizeof( m_ar[0]));
 			if (m_size > NodeClass::MaxNofNodes)
 			{
-				throw std::logic_error( "number of nodes exceeds maximum limit");
+				return NullNodeIndex;
 			}
+			std::memset( m_ar + m_size, 0, sizeof( m_ar[0]));
 			return m_size++;
 		}
 
@@ -711,6 +713,11 @@ private:
 			m_freelist = 0;
 		}
 
+		NodeIndex spaceLeft() const
+		{
+			return NodeClass::MaxNofNodes - m_size;
+		}
+
 	private:
 		typename NodeType::UnitType* m_ar;
 		std::size_t m_size;
@@ -722,6 +729,7 @@ private:
 	NodeAddress moveBlock( Block<DestNodeType>& dstblk, Block<SourceNodeType>& srcblk, NodeAddress srcaddr)
 	{
 		NodeIndex dstidx = dstblk.allocNode();
+		if (dstidx == NullNodeIndex) return 0;
 		NodeIndex srcidx = nodeIndex( srcaddr);
 		DestNodeType::copy( dstblk[ dstidx], srcblk[ srcidx]);
 		srcblk.releaseNode( srcidx);
@@ -741,7 +749,7 @@ private:
 				const NodeAddress& newaddr);
 
 	/// \brief Add a node and eventually replace it with an expanded node, if the capacity is too small to hold the new successor node
-	void addNodeExpand( const NodeAddress& parentaddr,
+	bool addNodeExpand( const NodeAddress& parentaddr,
 				unsigned char parentchr, NodeAddress& addr,
 				unsigned char lexem, const NodeAddress& followaddr);
 
@@ -749,7 +757,7 @@ private:
 
 	NodeAddress expandNode( const NodeAddress& addr);
 
-	void addTail( const NodeAddress& parentaddr, unsigned char parentchr,
+	bool addTail( const NodeAddress& parentaddr, unsigned char parentchr,
 			NodeAddress& addr, const unsigned char* tail, 
 			const NodeData& data);
 
